@@ -134,10 +134,10 @@ void loop() {
   static bool   gps_loc_update_valid = false;
   static time_t nextBeaconTimeStamp  = -1;
 
-  if (gps_loc_update != gps_loc_update_valid) {
-    gps_loc_update_valid = gps_loc_update;
+  if (gps.location.isValid() != gps_loc_update_valid) {
+    gps_loc_update_valid = gps.location.isValid();
 
-    if (gps_loc_update)
+    if (gps_loc_update_valid)
       logPrintlnI("GPS fix state went to VALID");
     else
       logPrintlnI("GPS fix state went to INVALID");
