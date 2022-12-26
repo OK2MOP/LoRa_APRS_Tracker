@@ -162,10 +162,11 @@ void loop() {
   if (gps.location.isValid() != gps_loc_update_valid) {
     gps_loc_update_valid = gps.location.isValid();
 
-    if (gps_loc_update_valid)
+    if (gps_loc_update_valid) {  // No measureable power consumption reduction happended with powerManagement.deactivateLoRa();
       logPrintlnI("GPS fix state went to VALID");
-    else
+    } else {
       logPrintlnI("GPS fix state went to INVALID");
+    }
   }
 
   static double       currentHeading          = 0;
@@ -207,6 +208,7 @@ void loop() {
   if (BatteryIsConnected) {
     batteryVoltage       = String(powerManagement.getBatteryVoltage(), 2);
     batteryChargeCurrent = String(powerManagement.getBatteryChargeDischargeCurrent(), 0);
+    batteryChargeCurrent.trim();
   }
 #endif
 
@@ -254,7 +256,7 @@ void loop() {
 
     msg.setSource(BeaconMan.getCurrentBeaconConfig()->callsign);
     msg.setPath(BeaconMan.getCurrentBeaconConfig()->path);
-    msg.setDestination("APLT00");
+    msg.setDestination("APLT01");
 
     if (!BeaconMan.getCurrentBeaconConfig()->enhance_precision) {
       lat = create_lat_aprs(gps.location.rawLat());
@@ -300,6 +302,8 @@ void loop() {
     }
 
     String aprsmsg;
+    bool send_msg_text=false;
+
     aprsmsg = "!" + lat + BeaconMan.getCurrentBeaconConfig()->overlay + lng + BeaconMan.getCurrentBeaconConfig()->symbol + course_and_speed + alt;
     // message_text every 10's packet (i.e. if we have beacon rate 1min at high
     // speed -> every 10min). May be enforced above (at expirey of smart beacon
@@ -307,9 +311,10 @@ void loop() {
     // static rate 10 -> every third packet)
     if (!(rate_limit_message_text++ % 10)) {
       aprsmsg += BeaconMan.getCurrentBeaconConfig()->message;
+      send_msg_text=true;
     }
     if (BatteryIsConnected) {
-      aprsmsg += " -  _Bat.: " + batteryVoltage + "V - Cur.: " + batteryChargeCurrent + "mA";
+      aprsmsg += String(send_msg_text?(" - "):"") + "U=" + batteryVoltage + "V, I=" + batteryChargeCurrent + "mA";
     }
 
     if (BeaconMan.getCurrentBeaconConfig()->enhance_precision) {
