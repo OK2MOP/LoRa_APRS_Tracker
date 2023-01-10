@@ -9,7 +9,6 @@
 #endif
 #include <logger.h>
 #ifdef ESP32
-#  include <driver/adc.h>
 #  include <esp_bt.h>
 #endif
 #include "BeaconManager.h"
@@ -104,9 +103,6 @@ void setup() {
   esp_bt_controller_disable();
 #  if defined(TTGO_T_Beam_V1_0) // || defined(TTGO_T_Beam_V0_7)
   // TTGO_T_Beam_V0_7 should probably work as well but could not be confirmed so it is disabled now
-  // We don't need built-in ADC for voltage measurement on T-beam 1.0
-  adc_power_off();
-
   //Going to 20MHz breaks the display, 40 MHz reduces power consumption by ~15-20mA
   if (! setCpuFrequencyMhz(40)) {
     setCpuFrequencyMhz(80); // Some guides suggest this as backup for other CPUs
