@@ -135,6 +135,7 @@ void setup() {
 
 // cppcheck-suppress unusedFunction
 void loop() {
+  static bool serial_gps = false;
   userButton.tick();
 
   if (Config.debug) {
@@ -146,8 +147,17 @@ void loop() {
   } else {
     while (ss.available() > 0) {
       char c = ss.read();
-      // Serial.print(c);
+      if (serial_gps) {
+        Serial.print(c);
+      }
       gps.encode(c);
+    }
+    while (Serial.available() > 0) { // Serial port is connected and we are sending serial commands
+      char c = Serial.read();
+      if (!serial_gps) {
+        serial_gps = true;
+      }
+      ss.print(c);
     }
   }
 
